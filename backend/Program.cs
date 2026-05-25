@@ -68,7 +68,7 @@ app.MapGet("/dbtest", (IConfiguration config) =>
 
         using var conn = new Npgsql.NpgsqlConnection(npgBuilder.ConnectionString);
         conn.Open();
-        using var cmd = new Npgsql.NpgsqlCommand("SELECT COUNT(*) FROM dbo.Businesses", conn);
+        using var cmd = new Npgsql.NpgsqlCommand("SELECT COUNT(*) FROM Businesses", conn);
         var count = cmd.ExecuteScalar();
 
         return Results.Ok(new

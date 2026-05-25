@@ -21,7 +21,7 @@ public sealed partial class SqlStoreRepository
             connection,
             null,
             """
-            INSERT INTO dbo.Customers
+            INSERT INTO Customers
             (
                 FullName,
                 Email,
@@ -57,7 +57,7 @@ public sealed partial class SqlStoreRepository
             null,
             """
             SELECT CustomerId, PasswordHash, PasswordSalt
-            FROM dbo.Customers
+            FROM Customers
             WHERE Email = ?;
             """,
             NormalizeEmail(request.Email));
@@ -100,7 +100,7 @@ public sealed partial class SqlStoreRepository
             connection,
             null,
             """
-            UPDATE dbo.Customers
+            UPDATE Customers
             SET FullName = ?,
                 Phone = ?,
                 City = ?,
@@ -126,9 +126,9 @@ public sealed partial class SqlStoreRepository
         using var transaction = connection.BeginTransaction();
         try
         {
-            ExecuteNonQuery(connection, transaction, "DELETE FROM dbo.CustomerSessions WHERE CustomerId = ?;", customerId);
-            ExecuteNonQuery(connection, transaction, "UPDATE dbo.Orders SET CustomerId = NULL WHERE CustomerId = ?;", customerId);
-            ExecuteNonQuery(connection, transaction, "DELETE FROM dbo.Customers WHERE CustomerId = ?;", customerId);
+            ExecuteNonQuery(connection, transaction, "DELETE FROM CustomerSessions WHERE CustomerId = ?;", customerId);
+            ExecuteNonQuery(connection, transaction, "UPDATE Orders SET CustomerId = NULL WHERE CustomerId = ?;", customerId);
+            ExecuteNonQuery(connection, transaction, "DELETE FROM Customers WHERE CustomerId = ?;", customerId);
             transaction.Commit();
         }
         catch
@@ -145,7 +145,7 @@ public sealed partial class SqlStoreRepository
         cancellationToken.ThrowIfCancellationRequested();
 
         using var connection = CreateOpenConnection();
-        ExecuteNonQuery(connection, null, "DELETE FROM dbo.CustomerSessions WHERE SessionToken = ?;", token);
+        ExecuteNonQuery(connection, null, "DELETE FROM CustomerSessions WHERE SessionToken = ?;", token);
         return Task.CompletedTask;
     }
 
@@ -169,7 +169,7 @@ public sealed partial class SqlStoreRepository
             connection,
             null,
             """
-            INSERT INTO dbo.CustomerSessions (CustomerId, SessionToken, ExpiresAt)
+            INSERT INTO CustomerSessions (CustomerId, SessionToken, ExpiresAt)
             VALUES (?, ?, CURRENT_TIMESTAMP + INTERVAL '14 days');
             """,
             customerId,

@@ -26,7 +26,7 @@ public sealed partial class SqlStoreRepository
             connection,
             null,
             """
-            INSERT INTO dbo.Businesses
+            INSERT INTO Businesses
             (
                 Slug,
                 OwnerName,
@@ -78,7 +78,7 @@ public sealed partial class SqlStoreRepository
             null,
             """
             SELECT BusinessId, PasswordHash, PasswordSalt
-            FROM dbo.Businesses
+            FROM Businesses
             WHERE Email = ?;
             """,
             NormalizeEmail(request.Email));
@@ -126,7 +126,7 @@ public sealed partial class SqlStoreRepository
             connection,
             null,
             """
-            UPDATE dbo.Businesses
+            UPDATE Businesses
             SET Slug = ?,
                 OwnerName = ?,
                 BusinessName = ?,
@@ -168,7 +168,7 @@ public sealed partial class SqlStoreRepository
         cancellationToken.ThrowIfCancellationRequested();
 
         using var connection = CreateOpenConnection();
-        ExecuteNonQuery(connection, null, "DELETE FROM dbo.BusinessSessions WHERE SessionToken = ?;", token);
+        ExecuteNonQuery(connection, null, "DELETE FROM BusinessSessions WHERE SessionToken = ?;", token);
         return Task.CompletedTask;
     }
 
@@ -182,10 +182,10 @@ public sealed partial class SqlStoreRepository
         using var transaction = connection.BeginTransaction();
         try
         {
-            ExecuteNonQuery(connection, transaction, "UPDATE dbo.Orders SET BusinessId = NULL WHERE BusinessId = ?;", businessId);
-            ExecuteNonQuery(connection, transaction, "DELETE FROM dbo.BusinessSessions WHERE BusinessId = ?;", businessId);
-            ExecuteNonQuery(connection, transaction, "UPDATE dbo.Products SET IsArchived = 1, IsPublished = 0, IsFeatured = 0 WHERE BusinessId = ?;", businessId);
-            ExecuteNonQuery(connection, transaction, "DELETE FROM dbo.Businesses WHERE BusinessId = ?;", businessId);
+            ExecuteNonQuery(connection, transaction, "UPDATE Orders SET BusinessId = NULL WHERE BusinessId = ?;", businessId);
+            ExecuteNonQuery(connection, transaction, "DELETE FROM BusinessSessions WHERE BusinessId = ?;", businessId);
+            ExecuteNonQuery(connection, transaction, "UPDATE Products SET IsArchived = 1, IsPublished = 0, IsFeatured = 0 WHERE BusinessId = ?;", businessId);
+            ExecuteNonQuery(connection, transaction, "DELETE FROM Businesses WHERE BusinessId = ?;", businessId);
             transaction.Commit();
         }
         catch
@@ -204,7 +204,7 @@ public sealed partial class SqlStoreRepository
             connection,
             null,
             """
-            INSERT INTO dbo.BusinessSessions (BusinessId, SessionToken, ExpiresAt)
+            INSERT INTO BusinessSessions (BusinessId, SessionToken, ExpiresAt)
             VALUES (?, ?, CURRENT_TIMESTAMP + INTERVAL '7 days');
             """,
             businessId,

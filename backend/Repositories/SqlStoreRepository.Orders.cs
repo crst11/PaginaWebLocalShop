@@ -124,7 +124,7 @@ public sealed partial class SqlStoreRepository
             connection,
             transaction,
             """
-            INSERT INTO dbo.Orders
+            INSERT INTO Orders
             (
                 CustomerId,
                 BusinessId,
@@ -159,7 +159,7 @@ public sealed partial class SqlStoreRepository
                 connection,
                 transaction,
                 """
-                INSERT INTO dbo.OrderItems (OrderId, ProductId, Quantity, UnitPrice, LineTotal)
+                INSERT INTO OrderItems (OrderId, ProductId, Quantity, UnitPrice, LineTotal)
                 VALUES (?, ?, ?, ?, ?);
                 """,
                 orderId,
@@ -172,7 +172,7 @@ public sealed partial class SqlStoreRepository
                 connection,
                 transaction,
                 """
-                UPDATE dbo.Products
+                UPDATE Products
                 SET Stock = Stock - ?, UpdatedAt = CURRENT_TIMESTAMP
                 WHERE ProductId = ? AND IsArchived = 0;
                 """,

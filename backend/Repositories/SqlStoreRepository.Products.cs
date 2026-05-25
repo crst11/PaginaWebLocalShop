@@ -12,7 +12,7 @@ public sealed partial class SqlStoreRepository
         cancellationToken.ThrowIfCancellationRequested();
 
         using var connection = CreateOpenConnection();
-        var count = Convert.ToInt32(ExecuteScalar(connection, null, "SELECT COUNT(*) FROM dbo.Businesses;"));
+        var count = Convert.ToInt32(ExecuteScalar(connection, null, "SELECT COUNT(*) FROM Businesses;"));
         return Task.FromResult(count > 0);
     }
 
@@ -89,7 +89,7 @@ public sealed partial class SqlStoreRepository
             connection,
             null,
             """
-            INSERT INTO dbo.Products
+            INSERT INTO Products
             (
                 BusinessId,
                 Name,
@@ -131,7 +131,7 @@ public sealed partial class SqlStoreRepository
             connection,
             null,
             """
-            UPDATE dbo.Products
+            UPDATE Products
             SET Name = ?,
                 Category = ?,
                 Description = ?,
@@ -176,7 +176,7 @@ public sealed partial class SqlStoreRepository
             connection,
             null,
             """
-            UPDATE dbo.Products
+            UPDATE Products
             SET IsArchived = 1,
                 IsPublished = 0,
                 IsFeatured = 0,

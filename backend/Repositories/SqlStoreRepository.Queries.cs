@@ -49,8 +49,8 @@ public sealed partial class SqlStoreRepository
                 p.ImageUrl,
                 p.IsFeatured,
                 p.IsPublished
-            FROM dbo.Businesses b
-            LEFT JOIN dbo.Products p
+            FROM Businesses b
+            LEFT JOIN Products p
                 ON p.BusinessId = b.BusinessId
                 AND p.IsArchived = 0
             """;
@@ -142,7 +142,7 @@ public sealed partial class SqlStoreRepository
             transaction,
             """
             SELECT ProductId, BusinessId, Name, Category, Description, Price, MinimumOrder, Stock, ImageUrl, IsFeatured, IsPublished
-            FROM dbo.Products
+            FROM Products
             WHERE ProductId = ? AND BusinessId = ? AND IsArchived = 0;
             """,
             productId,
@@ -178,7 +178,7 @@ public sealed partial class SqlStoreRepository
             transaction,
             """
             SELECT CustomerId, FullName, Email, Phone, City, Address, AuthProvider
-            FROM dbo.Customers
+            FROM Customers
             WHERE CustomerId = ?;
             """,
             customerId);
@@ -211,7 +211,7 @@ public sealed partial class SqlStoreRepository
             transaction,
             """
             SELECT BusinessId
-            FROM dbo.BusinessSessions
+            FROM BusinessSessions
             WHERE SessionToken = ? AND ExpiresAt > CURRENT_TIMESTAMP;
             """,
             token);
@@ -236,7 +236,7 @@ public sealed partial class SqlStoreRepository
             transaction,
             """
             SELECT CustomerId
-            FROM dbo.CustomerSessions
+            FROM CustomerSessions
             WHERE SessionToken = ? AND ExpiresAt > CURRENT_TIMESTAMP;
             """,
             token);
@@ -258,7 +258,7 @@ public sealed partial class SqlStoreRepository
         using var command = CreateCommand(
             connection,
             transaction,
-            "SELECT BusinessName, MinimumOrderAmount FROM dbo.Businesses WHERE BusinessId = ?;",
+            "SELECT BusinessName, MinimumOrderAmount FROM Businesses WHERE BusinessId = ?;",
             businessId);
 
         using var reader = command.ExecuteReader(CommandBehavior.SingleRow);
@@ -281,7 +281,7 @@ public sealed partial class SqlStoreRepository
             transaction,
             """
             SELECT ProductId, Name, Price, MinimumOrder, Stock
-            FROM dbo.Products
+            FROM Products
             WHERE ProductId = ? AND BusinessId = ? AND IsPublished = 1 AND IsArchived = 0;
             """,
             productId,
@@ -326,7 +326,7 @@ public sealed partial class SqlStoreRepository
                        IsNew,
                        CreatedAt,
                        PaymentMethod
-                   FROM dbo.Orders
+                   FROM Orders
                    WHERE BusinessId = ?
                    ORDER BY CreatedAt DESC, OrderId DESC;
                    """,
@@ -361,7 +361,7 @@ public sealed partial class SqlStoreRepository
             connection,
             transaction,
             """
-            UPDATE dbo.Orders
+            UPDATE Orders
             SET IsNew = 0,
                 ViewedAt = COALESCE(ViewedAt, CURRENT_TIMESTAMP)
             WHERE BusinessId = ? AND IsNew = 1;
@@ -379,9 +379,9 @@ public sealed partial class SqlStoreRepository
                        oi.Quantity,
                        oi.UnitPrice,
                        oi.LineTotal
-                   FROM dbo.OrderItems oi
-                   LEFT JOIN dbo.Products p ON p.ProductId = oi.ProductId
-                   INNER JOIN dbo.Orders o ON o.OrderId = oi.OrderId
+                   FROM OrderItems oi
+                   LEFT JOIN Products p ON p.ProductId = oi.ProductId
+                   INNER JOIN Orders o ON o.OrderId = oi.OrderId
                    WHERE o.BusinessId = ?
                    ORDER BY oi.OrderId DESC, oi.OrderItemId ASC;
                    """,
@@ -430,8 +430,8 @@ public sealed partial class SqlStoreRepository
                        o.DeliveryAddress,
                        o.Notes,
                        o.PaymentMethod
-                   FROM dbo.Orders o
-                   LEFT JOIN dbo.Businesses b ON b.BusinessId = o.BusinessId
+                   FROM Orders o
+                   LEFT JOIN Businesses b ON b.BusinessId = o.BusinessId
                    WHERE o.CustomerId = ?
                    ORDER BY o.CreatedAt DESC, o.OrderId DESC;
                    """,
@@ -470,9 +470,9 @@ public sealed partial class SqlStoreRepository
                        oi.Quantity,
                        oi.UnitPrice,
                        oi.LineTotal
-                   FROM dbo.OrderItems oi
-                   LEFT JOIN dbo.Products p ON p.ProductId = oi.ProductId
-                   INNER JOIN dbo.Orders o ON o.OrderId = oi.OrderId
+                   FROM OrderItems oi
+                   LEFT JOIN Products p ON p.ProductId = oi.ProductId
+                   INNER JOIN Orders o ON o.OrderId = oi.OrderId
                    WHERE o.CustomerId = ?
                    ORDER BY o.CreatedAt DESC, oi.OrderItemId ASC;
                    """,
@@ -508,7 +508,7 @@ public sealed partial class SqlStoreRepository
         var result = ExecuteScalar(
             connection,
             transaction,
-            "SELECT COUNT(*) FROM dbo.Products WHERE ProductId = ? AND BusinessId = ? AND IsArchived = 0;",
+            "SELECT COUNT(*) FROM Products WHERE ProductId = ? AND BusinessId = ? AND IsArchived = 0;",
             productId,
             businessId);
 

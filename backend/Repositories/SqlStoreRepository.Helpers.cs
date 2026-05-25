@@ -124,12 +124,12 @@ public sealed partial class SqlStoreRepository
 
         if (excludedBusinessId.HasValue)
         {
-            sql = "SELECT COUNT(*) FROM dbo.Businesses WHERE Email = ? AND BusinessId <> ?;";
+            sql = "SELECT COUNT(*) FROM Businesses WHERE Email = ? AND BusinessId <> ?;";
             values = [email, excludedBusinessId.Value];
         }
         else
         {
-            sql = "SELECT COUNT(*) FROM dbo.Businesses WHERE Email = ?;";
+            sql = "SELECT COUNT(*) FROM Businesses WHERE Email = ?;";
             values = [email];
         }
 
@@ -151,12 +151,12 @@ public sealed partial class SqlStoreRepository
 
         if (excludedCustomerId.HasValue)
         {
-            sql = "SELECT COUNT(*) FROM dbo.Customers WHERE Email = ? AND CustomerId <> ?;";
+            sql = "SELECT COUNT(*) FROM Customers WHERE Email = ? AND CustomerId <> ?;";
             values = [email, excludedCustomerId.Value];
         }
         else
         {
-            sql = "SELECT COUNT(*) FROM dbo.Customers WHERE Email = ?;";
+            sql = "SELECT COUNT(*) FROM Customers WHERE Email = ?;";
             values = [email];
         }
 
@@ -178,12 +178,12 @@ public sealed partial class SqlStoreRepository
 
         if (excludedBusinessId.HasValue)
         {
-            sql = "SELECT COUNT(*) FROM dbo.Businesses WHERE LOWER(LTRIM(RTRIM(BusinessName))) = LOWER(?) AND BusinessId <> ?;";
+            sql = "SELECT COUNT(*) FROM Businesses WHERE LOWER(LTRIM(RTRIM(BusinessName))) = LOWER(?) AND BusinessId <> ?;";
             values = [businessName, excludedBusinessId.Value];
         }
         else
         {
-            sql = "SELECT COUNT(*) FROM dbo.Businesses WHERE LOWER(LTRIM(RTRIM(BusinessName))) = LOWER(?);";
+            sql = "SELECT COUNT(*) FROM Businesses WHERE LOWER(LTRIM(RTRIM(BusinessName))) = LOWER(?);";
             values = [businessName];
         }
 
@@ -231,12 +231,12 @@ public sealed partial class SqlStoreRepository
 
         if (excludedBusinessId.HasValue)
         {
-            sql = "SELECT COUNT(*) FROM dbo.Businesses WHERE Slug = ? AND BusinessId <> ?;";
+            sql = "SELECT COUNT(*) FROM Businesses WHERE Slug = ? AND BusinessId <> ?;";
             values = [slug, excludedBusinessId.Value];
         }
         else
         {
-            sql = "SELECT COUNT(*) FROM dbo.Businesses WHERE Slug = ?;";
+            sql = "SELECT COUNT(*) FROM Businesses WHERE Slug = ?;";
             values = [slug];
         }
 
