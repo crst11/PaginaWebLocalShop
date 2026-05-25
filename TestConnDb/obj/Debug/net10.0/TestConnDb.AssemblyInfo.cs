@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TestConnDb")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+600a9a21530f1c392d608c9db9a98fb8689cd74e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+082b7cdad5e98079f3abd9b889cb8fcc61921f38")]
 [assembly: System.Reflection.AssemblyProductAttribute("TestConnDb")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TestConnDb")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

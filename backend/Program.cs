@@ -32,6 +32,67 @@ app.UseCors("frontend");
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "LocalShop API" }));
 
+// Temporary diagnostic endpoint - REMOVE after debugging
+app.MapGet("/dbtest", (IConfiguration config) =>
+{
+    var connStr = config.GetConnectionString("DefaultConnection") ?? "(not found)";
+    var masked = System.Text.RegularExpressions.Regex.Replace(connStr, @"Password=[^;]+", "Password=***");
+
+    try
+    {
+        var npgBuilder = new Npgsql.NpgsqlConnectionStringBuilder(connStr);
+        npgBuilder.Port = 6543;
+
+        // Try DNS resolution
+        string dnsResult = "not attempted";
+        try
+        {
+            var hostEntry = System.Net.Dns.GetHostEntry(npgBuilder.Host!);
+            var addresses = hostEntry.AddressList.Select(a => $"{a} ({a.AddressFamily})").ToArray();
+            dnsResult = string.Join(", ", addresses);
+
+            var ipv4 = hostEntry.AddressList
+                .FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+            if (ipv4 != null)
+            {
+                npgBuilder.Host = ipv4.ToString();
+            }
+        }
+        catch (Exception dnsEx)
+        {
+            dnsResult = $"DNS FAILED: {dnsEx.Message}";
+        }
+
+        var finalConn = System.Text.RegularExpressions.Regex.Replace(
+            npgBuilder.ConnectionString, @"Password=[^;]+", "Password=***");
+
+        using var conn = new Npgsql.NpgsqlConnection(npgBuilder.ConnectionString);
+        conn.Open();
+        using var cmd = new Npgsql.NpgsqlCommand("SELECT COUNT(*) FROM dbo.Businesses", conn);
+        var count = cmd.ExecuteScalar();
+
+        return Results.Ok(new
+        {
+            status = "CONNECTED",
+            businessCount = count,
+            configConnStr = masked,
+            finalConnStr = finalConn,
+            dnsResolution = dnsResult
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new
+        {
+            status = "FAILED",
+            error = ex.Message,
+            innerError = ex.InnerException?.Message,
+            configConnStr = masked,
+            exType = ex.GetType().FullName
+        });
+    }
+});
+
 app.MapGet("/", () => Results.Ok(new
 {
     api = "LocalShop API",
