@@ -174,7 +174,7 @@ public sealed partial class SqlStoreRepository
                 """
                 UPDATE Products
                 SET Stock = Stock - ?, UpdatedAt = CURRENT_TIMESTAMP
-                WHERE ProductId = ? AND IsArchived = 0;
+                WHERE ProductId = ? AND IsArchived = FALSE;
                 """,
                 line.Quantity,
                 line.ProductId);

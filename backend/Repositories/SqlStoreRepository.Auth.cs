@@ -184,7 +184,7 @@ public sealed partial class SqlStoreRepository
         {
             ExecuteNonQuery(connection, transaction, "UPDATE Orders SET BusinessId = NULL WHERE BusinessId = ?;", businessId);
             ExecuteNonQuery(connection, transaction, "DELETE FROM BusinessSessions WHERE BusinessId = ?;", businessId);
-            ExecuteNonQuery(connection, transaction, "UPDATE Products SET IsArchived = 1, IsPublished = 0, IsFeatured = 0 WHERE BusinessId = ?;", businessId);
+            ExecuteNonQuery(connection, transaction, "UPDATE Products SET IsArchived = TRUE, IsPublished = FALSE, IsFeatured = FALSE WHERE BusinessId = ?;", businessId);
             ExecuteNonQuery(connection, transaction, "DELETE FROM Businesses WHERE BusinessId = ?;", businessId);
             transaction.Commit();
         }

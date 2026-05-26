@@ -142,7 +142,7 @@ public sealed partial class SqlStoreRepository
                 IsFeatured = ?,
                 IsPublished = ?,
                 UpdatedAt = CURRENT_TIMESTAMP
-            WHERE ProductId = ? AND BusinessId = ? AND IsArchived = 0;
+            WHERE ProductId = ? AND BusinessId = ? AND IsArchived = FALSE;
             """,
             RequireText(request.Name, "Ingresa un nombre para el producto."),
             RequireText(request.Category, "Ingresa una categoria para el producto."),
@@ -177,12 +177,12 @@ public sealed partial class SqlStoreRepository
             null,
             """
             UPDATE Products
-            SET IsArchived = 1,
-                IsPublished = 0,
-                IsFeatured = 0,
+            SET IsArchived = TRUE,
+                IsPublished = FALSE,
+                IsFeatured = FALSE,
                 Stock = 0,
                 UpdatedAt = CURRENT_TIMESTAMP
-            WHERE ProductId = ? AND BusinessId = ? AND IsArchived = 0;
+            WHERE ProductId = ? AND BusinessId = ? AND IsArchived = FALSE;
             """,
             productId,
             businessId);

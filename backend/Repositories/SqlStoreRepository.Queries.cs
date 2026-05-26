@@ -52,19 +52,19 @@ public sealed partial class SqlStoreRepository
             FROM Businesses b
             LEFT JOIN Products p
                 ON p.BusinessId = b.BusinessId
-                AND p.IsArchived = 0
+                AND p.IsArchived = FALSE
             """;
 
         if (publishedOnly)
         {
-            sql += " AND p.IsPublished = 1";
+            sql += " AND p.IsPublished = TRUE";
         }
 
         sql += " WHERE 1 = 1";
 
         if (businessId.HasValue)
         {
-            sql += " AND b.BusinessId = ?";
+            sql += " AND b.BusinessId = $1";
             AddParameter(command, businessId.Value);
         }
 
@@ -143,7 +143,7 @@ public sealed partial class SqlStoreRepository
             """
             SELECT ProductId, BusinessId, Name, Category, Description, Price, MinimumOrder, Stock, ImageUrl, IsFeatured, IsPublished
             FROM Products
-            WHERE ProductId = ? AND BusinessId = ? AND IsArchived = 0;
+            WHERE ProductId = ? AND BusinessId = ? AND IsArchived = FALSE;
             """,
             productId,
             businessId);
@@ -282,7 +282,7 @@ public sealed partial class SqlStoreRepository
             """
             SELECT ProductId, Name, Price, MinimumOrder, Stock
             FROM Products
-            WHERE ProductId = ? AND BusinessId = ? AND IsPublished = 1 AND IsArchived = 0;
+            WHERE ProductId = ? AND BusinessId = ? AND IsPublished = TRUE AND IsArchived = FALSE;
             """,
             productId,
             businessId);
@@ -362,9 +362,9 @@ public sealed partial class SqlStoreRepository
             transaction,
             """
             UPDATE Orders
-            SET IsNew = 0,
+            SET IsNew = FALSE,
                 ViewedAt = COALESCE(ViewedAt, CURRENT_TIMESTAMP)
-            WHERE BusinessId = ? AND IsNew = 1;
+            WHERE BusinessId = ? AND IsNew = TRUE;
             """,
             businessId);
 
@@ -423,7 +423,7 @@ public sealed partial class SqlStoreRepository
                    SELECT
                        o.OrderId,
                        o.BusinessId,
-                       COALESCE(b.BusinessName, N'Empresa eliminada') AS BusinessName,
+                       COALESCE(b.BusinessName, 'Empresa eliminada') AS BusinessName,
                        o.Status,
                        o.Total,
                        o.CreatedAt,
@@ -508,7 +508,7 @@ public sealed partial class SqlStoreRepository
         var result = ExecuteScalar(
             connection,
             transaction,
-            "SELECT COUNT(*) FROM Products WHERE ProductId = ? AND BusinessId = ? AND IsArchived = 0;",
+            "SELECT COUNT(*) FROM Products WHERE ProductId = ? AND BusinessId = ? AND IsArchived = FALSE;",
             productId,
             businessId);
 
