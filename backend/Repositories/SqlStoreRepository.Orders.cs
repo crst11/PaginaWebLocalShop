@@ -55,12 +55,67 @@ public sealed partial class SqlStoreRepository
             throw new InvalidOperationException("Debes agregar al menos un producto antes de comprar.");
         }
 
-        // Simular conexión con API de pagos - no crear órdenes aún
-        return Task.FromResult(new CheckoutCartResponse(
-            0,
-            0,
-            "Conectando con API de pagos... Por favor espera mientras procesamos tu pago.",
-            new List<BusinessCheckoutResultDto>()));
+        using var connection = CreateOpenConnection();
+        using var transaction = connection.BeginTransaction();
+
+        try
+        {
+            int? customerId = null;
+            if (!string.IsNullOrWhiteSpace(customerToken))
+            {
+                customerId = GetCustomerIdByToken(connection, transaction, customerToken);
+            }
+
+            // Agrupar items por empresa para crear un pedido por cada una.
+            var itemsByBusiness = request.Items
+                .GroupBy(item => item.BusinessId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => (IReadOnlyList<(int ProductId, int Quantity)>)g
+                        .Select(item => (item.ProductId, item.Quantity))
+                        .ToList());
+
+            var createdOrders = new List<BusinessCheckoutResultDto>();
+
+            foreach (var (businessId, items) in itemsByBusiness)
+            {
+                var result = CreateBusinessOrder(
+                    connection,
+                    transaction,
+                    businessId,
+                    customerId,
+                    request.FullName,
+                    request.Email,
+                    request.Phone,
+                    request.City,
+                    request.Address,
+                    request.Notes,
+                    request.PaymentMethod,
+                    items);
+
+                createdOrders.Add(new BusinessCheckoutResultDto(
+                    result.OrderId,
+                    result.BusinessId,
+                    result.BusinessName,
+                    result.Total));
+            }
+
+            transaction.Commit();
+
+            var grandTotal = createdOrders.Sum(o => o.Total);
+            var count = createdOrders.Count;
+            var businessNames = createdOrders.Select(o => o.BusinessName).ToList();
+            var message = count == 1
+                ? $"Pedido enviado a {businessNames[0]}. El equipo comercial revisara tu solicitud pronto."
+                : $"Pedidos enviados a {string.Join(", ", businessNames)}. Los equipos comerciales revisaran tus solicitudes pronto.";
+
+            return Task.FromResult(new CheckoutCartResponse(count, grandTotal, message, createdOrders));
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     public Task<BusinessOrdersFeedResponse> GetBusinessOrdersAsync(string token, CancellationToken cancellationToken)

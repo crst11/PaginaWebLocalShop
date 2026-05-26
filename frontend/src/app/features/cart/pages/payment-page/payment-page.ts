@@ -65,11 +65,43 @@ export class PaymentPage implements OnInit {
       return;
     }
 
-    // Bloquear pagos completamente - No está habilitada la API de pagos
-    this.pageFeedback.set({
-      type: 'error',
-      message: 'Aún no está habilitado el sistema de pagos. La API de pagos no ha sido conectada.',
-    });
-    return;
+    const shipment = this.pendingShipment();
+    const items = this.currentCartItems();
+
+    if (!shipment || items.length === 0) {
+      void this.router.navigate(['/carrito']);
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.pageFeedback.set(null);
+
+    try {
+      const response = await this.orderService.checkoutCart({
+        fullName: shipment.fullName,
+        email: shipment.email,
+        phone: shipment.phone,
+        city: shipment.city,
+        address: shipment.address,
+        notes: shipment.notes,
+        paymentMethod: this.paymentMethod(),
+        items: items.map(item => ({
+          businessId: item.businessId,
+          productId: item.productId,
+          quantity: item.quantity,
+        })),
+      });
+
+      this.cartService.clear();
+      this.pageFeedback.set({ type: 'success', message: response.message });
+      setTimeout(() => void this.router.navigate(['/']), 3000);
+    } catch (error) {
+      this.pageFeedback.set({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'No se pudo procesar el pedido.',
+      });
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 }
